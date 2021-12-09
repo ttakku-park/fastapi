@@ -33,6 +33,8 @@ def show(blog_id:int): #파라미터로 받을 타입설정
 def comments(blog_id):
     return {'data':{blog_id:'2'}}
 
+
+#post의 request body 스키마 
 class Blog(BaseModel):
     title : str
     body : str
