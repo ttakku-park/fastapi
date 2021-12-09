@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, status, Response, HTTPException
+from sqlalchemy.sql import schema
 from starlette.status import HTTP_201_CREATED
-
-from main import Blog
+from typing import List
 from . import schemas, model, database
 from .database import Base, SessionLocal,engine
 from sqlalchemy.orm import Session
@@ -31,12 +31,14 @@ def create(request:schemas.Blog,db:Session = Depends(get_db)):
     db.refresh(new_blog)
     return new_blog
 
-@app.get('/blog')
+
+@app.get('/blog',response_model=List[schemas.ShowBlog]) #모든 데이터를 출력하기위해 typing의 List 사용
 def all(db:Session = Depends(get_db)):
     blogs = db.query(model.Blog).all()
     return blogs
 
-@app.get('/blog/{id}', status_code=status.HTTP_200_OK)
+
+@app.get('/blog/{id}', status_code=status.HTTP_200_OK,response_model=schemas.ShowBlog)
 def show(id,response:Response, db:Session = Depends(get_db)):
 
     blog = db.query(model.Blog).filter(model.Blog.id == id).first()
@@ -48,12 +50,14 @@ def show(id,response:Response, db:Session = Depends(get_db)):
 
     return blog
 
+
 @app.delete('/blog/{id}',status_code=status.HTTP_204_NO_CONTENT)
 def destroy(id,db : Session = Depends(get_db)):
     # update와 같은 방식으로 작성가능
     db.query(model.Blog).filter(model.Blog.id==id).delete(synchronize_session=False)
     db.commit()
     return {'detail':f'delete {id} done.'}
+
 
 @app.put('/blog/{id}',status_code=status.HTTP_200_OK)
 def update(id, request:schemas.Blog, db:Session = Depends(get_db)):
@@ -66,3 +70,5 @@ def update(id, request:schemas.Blog, db:Session = Depends(get_db)):
     db.commit()
 
     return f'detail : succesfuly update {id}'
+
+# respones_model == schema (pydandic model)
