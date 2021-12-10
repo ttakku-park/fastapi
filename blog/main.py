@@ -28,10 +28,10 @@ def get_db():
 #@app.post('/blog', status_code=201)와같이 statuscode 를 명시해도 되지만, fastapi 의 status 사용가능
 @app.post('/blog', status_code=status.HTTP_201_CREATED, tags=['blogs']) #tags 옵션은 swagger 카테고리 분리를 위함
 def create(request:schemas.Blog,db:Session = Depends(get_db)):
-    new_blog = model.Blog(title=request.title,body=request.body)
+    new_blog = model.Blog(title=request.title,body=request.body, user_id=2)
     db.add(new_blog)
-    db.commit()
-    db.refresh(new_blog)
+    db.commit() #add로 변경된 상태를 DB에 반영
+    db.refresh(new_blog) #최신상태로 만듬, DB에서 새로 READ
     return new_blog
 
 
